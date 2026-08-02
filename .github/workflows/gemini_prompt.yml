@@ -1,0 +1,53 @@
+name: Gemini Image Prompt Generator
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  generate_prompt:
+    if: contains(github.event.issue.title, '[PROMPT-GEN]')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Memproses Gambar dengan Gemini AI
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          pip install google-genai requests
+          python -c "
+          import os, re, requests
+          from google import genai
+          from google.genai import types
+
+          body = os.environ['ISSUE_BODY']
+          urls = re.findall(r'https://user-images\.githubusercontent\.com/\S+|https://github\.com/user-attachments/assets/\S+|https://\S+\.(?:png|jpg|jpeg|webp)', body)
+          
+          if not urls:
+              print('Tidak ada link gambar ditemukan.')
+              exit(0)
+
+          img_url = urls[0].rstrip(')')
+          img_data = requests.get(img_url).content
+
+          client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
+          response = client.models.generate_content(
+              model='gemini-2.5-flash',
+              contents=[
+                  types.Part.from_bytes(data=img_data, mime_type='image/jpeg'),
+                  'Kamu adalah Ahli Prompt Engineer. Analisis gambar ini dan buatkan teks prompt bahasa Inggris yang sangat detail untuk mereplikasi gambar ini di AI Image Generator (seperti Midjourney atau Stable Diffusion).'
+              ]
+          )
+
+          comment_body = f'### 🎨 Hasil Prompt dari Gemini AI:\n\n\`\`\`text\n{response.text}\n\`\`\`'
+          issue_num = os.environ['ISSUE_NUMBER']
+          repo = os.environ['REPO']
+          
+          headers = {'Authorization': f'token {os.environ[\"GH_TOKEN\"]}'}
+          requests.post(f'https://api.github.com/repos/{repo}/issues/{issue_num}/comments', json={'body': comment_body}, headers=headers)
+          "
