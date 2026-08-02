@@ -1,0 +1,43 @@
+name: "🖼️ Generate Prompt dari Gambar"
+description: "Unggah gambar untuk dianalisis dan diubah menjadi text prompt AI yang sangat detail."
+title: "[PROMPT-GEN]: "
+body:
+  - type: textarea
+    id: uploaded_image
+    attributes:
+      label: "🖼️ Unggah Gambar Anda Di Sini"
+      description: "Tarik dan lepas (drag & drop), atau paste gambar Anda ke dalam kotak ini. Gambar ini akan menjadi referensi utama."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_ai
+    attributes:
+      label: "🤖 Target AI Generator"
+      description: "Pilih platform AI yang akan Anda gunakan. Struktur prompt akan disesuaikan dengan format terbaik untuk AI tersebut."
+      options:
+        - Midjourney (V6 / Niji)
+        - Stable Diffusion (SDXL / SD 1.5)
+        - DALL-E 3 (ChatGPT / Bing Image Creator)
+        - Leonardo.ai
+        - Adobe Firefly
+    validations:
+      required: true
+
+  - type: input
+    id: art_style
+    attributes:
+      label: "🎨 Gaya Seni / Art Style (Opsional)"
+      description: "Gaya visual apa yang Anda inginkan untuk hasil akhirnya? (Contoh: Photorealistic, Anime, 3D Render, Oil Painting, Cyberpunk)."
+      placeholder: "Biarkan kosong jika ingin menyalin gaya asli dari gambar unggahan..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: "📝 Instruksi Tambahan (Opsional)"
+      description: "Apakah ada elemen yang ingin diubah atau difokuskan dari gambar asli? (Contoh: 'Ubah suasana menjadi malam hari', 'Ganti warna baju menjadi merah', atau 'Tambahkan efek hujan')."
+      placeholder: "Ketik instruksi tambahan di sini..."
+    validations:
+      required: false
